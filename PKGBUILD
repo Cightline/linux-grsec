@@ -2,10 +2,10 @@
 # Maintainer: Tobias Powalowski <tpowa@archlinux.org>
 # Maintainer: Thomas Baechler <thomas@archlinux.org>
 
-pkgbase=linux               # Build stock -ARCH kernel
+pkgbase=linux-grsec               # Build stock -ARCH kernel
 #pkgbase=linux-custom       # Build kernel with a different name
 _srcname=linux-3.8
-pkgver=3.8.6
+pkgver=3.8.7
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -14,24 +14,33 @@ makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc')
 options=('!strip')
 source=("http://www.kernel.org/pub/linux/kernel/v3.x/${_srcname}.tar.xz"
         "http://www.kernel.org/pub/linux/kernel/v3.x/patch-${pkgver}.xz"
+        "http://grsecurity.net/test/grsecurity-2.9.1-3.8.7-201304122027.patch"
         # the main kernel config files
         'config' 'config.x86_64'
         # standard config files for mkinitcpio ramdisk
         'linux.preset'
         'change-default-console-loglevel.patch')
-md5sums=('1c738edfc54e7c65faeb90c436104e2f'
-         'f11748a53d4ec0e2dcbfbb64526d6434'
-         '838191b72463b4146bc981b602423311'
-         '0bebd8b31487488bd75fe5a1892d0db8'
-         'eb14dcfd80c00852ef81ded6e826826a'
-         'f3def2cefdcbb954c21d8505d23cc83c')
-_kernelname=${pkgbase#linux}
+
+# Files are downloaded, sha512 sum'd and extracted and verified. If it yeilds a good gpg sig, then I keep the 
+# sha sums. 
+sha512sums=('10a7983391af907d8aec72bdb096d1cabd4911985715e9ea13d35ff09095c035db15d4ab08b92eda7c10026cc27348cb9728c212335f7fcdcda7c610856ec30f'
+            '311cb2b75671ec842c7f4f4724af5afe2a23458eb28f2199ed9a4472f7a34e10ccd1f656a4c61634a0f6606714d5d4ebd6007ea90eddbdd32d83179e4adcb242'
+            'e9bf809bcf16613ec7511758537c6df5abc73dee09064068e5c0152c009f7a9e15c4c767adf9fa66d5a23b8aef162591221c287941b001db2d7fe055183f0705'
+            '6741168bb3cdee342667942948cc11aa28c273a459f665d51f33f1f6dc0add7020d821f3f6237d2240a2dfaacb6c01c6703ba5d7f0c68d112151a7cd04f5d982'
+            '01db5fd8aa94f997c3d8e380e5f029b77c56ef15d7471b355a14bd112cbe2f1673ff324645b85fb3f859d12ca52f030133d41221239bc74119ad40753953be7e'
+            '5fe243dea17fdb71edc7098e0e1938beb7f2d851bd2be3981c4ef3d617aaad81ff1cb4c84689082472ebd13b721e849ad2214aefb9ffe40ec3d76abfd40b87ad'
+            '81ed74b203ff80c8fcc33a9574374905bbdc82dfdb3c248f4502c34027bb916d7b9b100ff96eea9bad0218e8e070a88ab4abce3fb11406e476fefb5753e5a3a8'
+
+_kernelname=${pkgbase}
 
 build() {
   cd "${srcdir}/${_srcname}"
 
   # add upstream patch
   patch -p1 -i "${srcdir}/patch-${pkgver}"
+
+  # grsecurity patch
+  patch -p1 -i "${srcdir}/grsecurity-2.9.1-3.8.7-201304122027.patch"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
